@@ -3,14 +3,29 @@ require "rack/contrib/not_found"
 require "rack/contrib/response_headers"
 require "rack/contrib/static_cache"
 require "rack/contrib/try_static"
+require "rack/protection"
 
 require File.expand_path("../lib/legacy_redirect", __FILE__)
+require File.expand_path("../lib/redirect_to_releases", __FILE__)
+
+# Protect against various bad things
+use Rack::Protection::JsonCsrf
+use Rack::Protection::RemoteReferrer
+use Rack::Protection::HttpOrigin
+use Rack::Protection::EscapedParams
+use Rack::Protection::XSSHeader
+use Rack::Protection::FrameOptions
+use Rack::Protection::PathTraversal
+use Rack::Protection::IPSpoofing
 
 # Properly compress the output if the client can handle it.
 use Rack::Deflater
 
 # Redirect the legacy URLs that point to www.vagrantup.com
 use HashiCorp::Rack::LegacyRedirect
+
+# Redirect the archive page to releases
+use HashiCorp::Rack::RedirectToReleases
 
 # Set the "forever expire" cache headers for these static assets. Since
 # we hash the contents of the assets to determine filenames, this is safe

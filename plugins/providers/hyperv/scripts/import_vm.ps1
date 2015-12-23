@@ -81,14 +81,27 @@ if (!$switchname) {
     $switchname = (Select-Xml -xml $vmconfig -XPath "//AltSwitchName").node."#text"
 }
 
-# Determine boot device
-Switch ((Select-Xml -xml $vmconfig -XPath "//boot").node.device0."#text") {
-    "Floppy"    { $bootdevice = "floppy" }
-    "HardDrive" { $bootdevice = "IDE" }
-    "Optical"   { $bootdevice = "CD" }
-    "Network"   { $bootdevice = "LegacyNetworkAdapter" }
-    "Default"   { $bootdevice = "IDE" }
-} #switch
+if ($generation -eq 1) {
+    # Determine boot device
+    Switch ((Select-Xml -xml $vmconfig -XPath "//boot").node.device0."#text") {
+        "Floppy"    { $bootdevice = "Floppy" }
+        "HardDrive" { $bootdevice = "IDE" }
+        "Optical"   { $bootdevice = "CD" }
+        "Network"   { $bootdevice = "LegacyNetworkAdapter" }
+        "Default"   { $bootdevice = "IDE" }
+    } #switch
+} else {
+    # Determine boot device
+    Switch ((Select-Xml -xml $vmconfig -XPath "//boot").node.device0."#text") {
+        "HardDrive" { $bootdevice = "VHD" }
+        "Optical"   { $bootdevice = "CD" }
+        "Network"   { $bootdevice = "NetworkAdapter" }
+        "Default"   { $bootdevice = "VHD" }
+    } #switch
+}
+
+# Determine secure boot options
+$secure_boot_enabled = (Select-Xml -xml $vmconfig -XPath "//secure_boot_enabled").Node."#text"
 
 # Define a hash map of parameter values for New-VM
 
@@ -132,6 +145,16 @@ $vm | Set-VM @more_vm_params -Passthru
 
 # Add drives to the virtual machine
 $controllers = Select-Xml -xml $vmconfig -xpath "//*[starts-with(name(.),'controller')]"
+
+# Only set EFI secure boot for Gen 2 machines, not gen 1
+if ($generation -ne 1) {
+	# Set EFI secure boot 
+	if ($secure_boot_enabled -eq "True") {
+		Set-VMFirmware -VM $vm -EnableSecureBoot On
+	}  else {
+		Set-VMFirmware -VM $vm -EnableSecureBoot Off
+	}
+}
 
 # A regular expression pattern to pull the number from controllers
 [regex]$rx="\d"

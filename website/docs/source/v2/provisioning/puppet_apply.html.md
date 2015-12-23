@@ -26,6 +26,8 @@ This section lists the complete set of available options for the Puppet
 provisioner. More detailed examples of how to use the provisioner are
 available below this section.
 
+* `binary_path` (string) - Path on the guest to Puppet's `bin/` directory.
+
 * `facter` (hash) - A hash of data to set as available facter variables
   within the Puppet run.
 
@@ -43,6 +45,11 @@ available below this section.
 * `module_path` (string) - Path, on the host, to the directory which
   contains Puppet modules, if any.
 
+* `environment` (string) - Name of the Puppet environment.
+
+* `environment_path` (string) - Path to the directory that contains environment
+  files on the host disk.
+
 * `options` (array of strings) - Additionally options to pass to the
   Puppet executable when running Puppet.
 
@@ -51,6 +58,10 @@ available below this section.
   this will use the default synced folder type. For example, you can set this
   to "nfs" to use NFS synced folders.
 
+* `synced_folder_args` (array) - Arguments that are passed to the folder sync.
+  For example ['-a', '--delete', '--exclude=fixtures'] for the rsync sync
+  command.
+
 * `temp_dir` (string) - The directory where all the data associated with
   the Puppet run (manifest files, modules, etc.) will be stored on the
   guest machine.
@@ -58,6 +69,13 @@ available below this section.
 * `working_directory` (string) - Path in the guest that will be the working
   directory when Puppet is executed. This is usually only set because relative
   paths are used in the Hiera configuration.
+
+~> If only `environment` and `environments_path` are specified, it will parse
+and use the manifest specified in the `environment.conf` file. If
+`manifests_path` and `manifest_file` is specified along with the environment
+options, the manifest from the environment will be overridden by the specified `manifest_file`. If `manifests_path` and `manifest_file` are specified without
+environments, the old non-environment mode will be used (which will fail on
+Puppet 4+).
 
 ## Bare Minimum
 
@@ -119,6 +137,28 @@ end
 
 It is a somewhat odd syntax, but the tuple (two-element array) says
 that the path is located in the "vm" at "/path/to/manifests".
+
+## Environments
+
+If you are using Puppet 4 or higher, you can proivision using
+[Puppet Environments](https://docs.puppetlabs.com/puppet/latest/reference/environments.html) by specifying the name of the environment and the path on the
+local disk to the environment files:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "puppet" do |puppet|
+    puppet.environment_path = "../puppet/environments"
+    puppet.environment = "testenv"
+  end
+end
+```
+
+The default manifest is the environment's `manifests` directory.
+If the environment has an `environment.conf` the manifest path is parsed
+from there. Relative paths are assumed to be relative to the directory of
+the environment. If the manifest setting in `environment.conf` use
+the Puppet variables `$codedir` or `$environment` they are resoled to
+the parent directory of `environment_path` and `environment` respectively.
 
 ## Modules
 

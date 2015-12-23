@@ -32,12 +32,19 @@ If multiple names are specified, multiple plugins will be installed. If
 flags are given below, the flags will apply to _all_ plugins being installed
 by the current command invocation.
 
+If the plugin is already installed, this command will reinstall it with
+the latest version available.
+
 This command accepts optional command-line flags:
 
 * `--entry-point ENTRYPOINT` - By default, installed plugins are loaded
   internally by loading an initialization file of the same name as the plugin.
   Most of the time, this is correct. If the plugin you're installing has
   another entrypoint, this flag can be used to specify it.
+
+* `--plugin-clean-sources` - Clears all sources that have been defined so
+  far. This is an advanced feature. The use case is primarily for corporate
+  firewalls that prevent access to RubyGems.org.
 
 * `--plugin-source SOURCE` - Adds a source from which to fetch a plugin. Note
   that this doesn't only affect the single plugin being installed, by all future
@@ -47,7 +54,7 @@ This command accepts optional command-line flags:
 * `--plugin-version VERSION` - The version of the plugin to install. By default,
   this command will install the latest version. You can constrain the version
   using this flag. You can set it to a specific version, such as "1.2.3" or
-  you can set it to a version contraint, such as "> 1.0.2". You can set it
+  you can set it to a version constraint, such as "> 1.0.2". You can set it
   to a more complex constraint by comma-separating multiple constraints:
   "> 1.0.2, < 1.1.0" (don't forget to quote these on the command-line).
 

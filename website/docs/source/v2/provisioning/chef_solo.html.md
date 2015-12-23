@@ -8,8 +8,8 @@ sidebar_current: "provisioning-chefsolo"
 **Provisioner name: `chef_solo`**
 
 The Chef Solo provisioner allows you to provision the guest using
-[Chef](http://www.opscode.com/chef/), specifically with
-[Chef Solo](http://docs.opscode.com/chef_solo.html).
+[Chef](https://www.chef.io/chef/), specifically with
+[Chef Solo](http://docs.chef.io/chef_solo.html).
 
 Chef Solo is ideal for people who are already experienced with Chef,
 already have Chef cookbooks, or are looking to learn Chef. Specifically,
@@ -36,11 +36,15 @@ available below this section.
   are stored. By default this is "cookbooks", expecting a cookbooks folder
   relative to the Vagrantfile location.
 
-* `data_bags_path` (string) - A path where data bags are stored. By default, no
-  data bag path is set.
+* `data_bags_path` (string or array) - A path where data bags are stored. By
+  default, no data bag path is set. Chef 12 or higher is required to use the
+  array option. Chef 11 and lower only accept a string value.
 
 * `environments_path` (string) - A path where environment definitions are
   located. By default, no environments folder is set.
+
+* `nodes_path` (string or array) - A list of paths where node objects (in JSON format) are stored. By default, no
+  nodes path is set.
 
 * `environment` (string) - The environment you want the Chef run to be
   a part of. This requires Chef 11.6.0 or later, and that `environments_path`
@@ -64,7 +68,7 @@ the [common options for all Chef provisioners](/v2/provisioning/chef_common.html
 ## Specifying a Run List
 
 The easiest way to get started with the Chef Solo provisioner is to just
-specify a [run list](http://docs.opscode.com/essentials_node_object_run_lists.html). This looks like:
+specify a [run list](https://docs.chef.io/nodes.html#about-run-lists). This looks like:
 
 ```ruby
 Vagrant.configure("2") do |config|
@@ -119,7 +123,7 @@ end
 
 ## Roles
 
-Vagrant also supports provisioning with [Chef roles](http://docs.opscode.com/essentials_roles.html).
+Vagrant also supports provisioning with [Chef roles](http://docs.chef.io/roles.html).
 This is done by specifying a path to a roles folder where roles are defined
 and by adding roles to your run list:
 
@@ -145,7 +149,7 @@ Vagrant.
 
 ## Data Bags
 
-[Data bags](http://docs.opscode.com/essentials_data_bags.html) are also
+[Data bags](http://docs.chef.io/data_bags.html) are also
 supported by the Chef Solo provisioner. This is done by specifying
 a path to your data bags directory:
 
